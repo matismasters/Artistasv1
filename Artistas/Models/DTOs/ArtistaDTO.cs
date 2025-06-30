@@ -5,6 +5,7 @@ namespace Artistas.Models.DTOs
 {
     public class ArtistaDTO
     {
+        public int Id { get; set; } = 0;
         [Required]
         public string Nombre { get; set; } = string.Empty;
         public string? Genero { get; set; }

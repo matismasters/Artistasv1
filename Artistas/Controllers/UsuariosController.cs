@@ -2,6 +2,7 @@
 using Artistas.Helpers;
 using Artistas.Models;
 using Artistas.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

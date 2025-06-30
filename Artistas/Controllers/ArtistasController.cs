@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Artistas.Data;
 using Artistas.Models;
 using Artistas.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Artistas.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ArtistasController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -46,7 +48,7 @@ namespace Artistas.Controllers
 
         // POST: api/Artistas
         [HttpPost]
-        public ActionResult<Artista> PostArtista([FromBody] ArtistaDTO parametrosArtista)
+        public ActionResult<ArtistaDTO> PostArtista([FromBody] ArtistaDTO parametrosArtista)
         {
             if (parametrosArtista == null)
                 return BadRequest("El cuerpo del request estaba vacio");
@@ -77,7 +79,9 @@ namespace Artistas.Controllers
             try
             {
                 _context.SaveChanges();
-                return Ok(artista);
+                parametrosArtista.Id = artista.Id; // Asignar el Id generado al DTO
+                
+                return Ok(parametrosArtista);
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
             }
@@ -126,8 +130,6 @@ namespace Artistas.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
 
         // DELETE: api/Artistas/5
         [HttpDelete("{id}")]
