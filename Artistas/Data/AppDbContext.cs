@@ -29,12 +29,27 @@ namespace Artistas.Data
                 .HasIndex(artista => artista.Nombre)
                 .IsUnique();
 
+            modelBuilder.Entity<Artista>()
+                .HasOne(artista => artista.Usuario)
+                .WithMany(usuario => usuario.Artistas);
+
+
             modelBuilder.Entity<Categoria>()
                 .HasIndex(categoria => categoria.Nombre)
+                .IsUnique();
+
+            modelBuilder.Entity<Usuario>()
+                .HasMany(usuario => usuario.Artistas)
+                .WithOne(artista => artista.Usuario)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Usuario>()
+                .HasIndex(usuario => usuario.Email)
                 .IsUnique();
        }
 
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Artista> Artistas { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
     }
 }

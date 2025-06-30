@@ -1,5 +1,9 @@
 using Artistas.Data;
+using Artistas.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +12,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Leer valores de JWT desde appsettings.json
+var jwtKey      = builder.Configuration["Jwt:Key"];
+var jwtIssuer   = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
+            ValidateIssuerSigningKey = true,
+
+            // ahora leemos desde la configuración
+            ValidIssuer              = jwtIssuer,
+            ValidAudience            = jwtAudience,
+            IssuerSigningKey         = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Nuestro helper Autentica (usa IConfiguration internamente)
+builder.Services.AddSingleton<Autentica>();
 
 var app = builder.Build();
 
@@ -22,6 +53,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

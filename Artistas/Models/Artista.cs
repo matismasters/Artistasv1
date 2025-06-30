@@ -12,6 +12,8 @@ namespace Artistas.Models
         public string? Nacionalidad { get; set; }
         public int? CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
+        public int? UsuarioId { get; set; }
+        public Usuario Usuario { get; set; }
 
         public Artista() { }
         public Artista(string nombre, string genero, DateOnly fechaNacimiento, string nacionalidad, int categoriaId)
