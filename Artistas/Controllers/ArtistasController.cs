@@ -9,6 +9,7 @@ using Artistas.Data;
 using Artistas.Models;
 using Artistas.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Artistas.Controllers
 {
@@ -48,13 +49,22 @@ namespace Artistas.Controllers
 
         // POST: api/Artistas
         [HttpPost]
-        public ActionResult<ArtistaDTO> PostArtista([FromBody] ArtistaDTO parametrosArtista)
+        public ActionResult<RespuestaArtistaDTO> PostArtista([FromBody] ArtistaDTO parametrosArtista)
         {
+            string? usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (usuarioId == null || usuarioId == string.Empty)
+                return Unauthorized("No se pudo obtener el Id del usuario autenticado");
+
             if (parametrosArtista == null)
                 return BadRequest("El cuerpo del request estaba vacio");
 
             if (ModelState.IsValid == false)
                 return BadRequest(ModelState);
+
+            Usuario? usuario = _context.Usuarios.FirstOrDefault(u => u.Id.ToString() == usuarioId);
+
+            if (usuario == null)
+                return Unauthorized("Usuario no encontrado");
 
             Categoria? categoria = _context.Categorias.FirstOrDefault(categoria => categoria.Id == parametrosArtista.CategoriaId);
 
@@ -71,7 +81,8 @@ namespace Artistas.Controllers
                 parametrosArtista.Genero,
                 parametrosArtista.FechaNacimiento,
                 parametrosArtista.Nacionalidad,
-                parametrosArtista.CategoriaId
+                parametrosArtista.CategoriaId,
+                usuario.Id
             );
 
             _context.Artistas.Add(artista);
@@ -79,9 +90,18 @@ namespace Artistas.Controllers
             try
             {
                 _context.SaveChanges();
-                parametrosArtista.Id = artista.Id; // Asignar el Id generado al DTO
-                
-                return Ok(parametrosArtista);
+                RespuestaArtistaDTO respuestaArtista = new RespuestaArtistaDTO();
+                respuestaArtista.Id = artista.Id;
+                respuestaArtista.Nombre = artista.Nombre;
+                respuestaArtista.Genero = artista.Genero ?? string.Empty;
+                respuestaArtista.FechaNacimiento = artista.FechaNacimiento.ToString("yyyy-MM-dd");
+                respuestaArtista.Nacionalidad = artista.Nacionalidad ?? string.Empty;
+                respuestaArtista.CategoriaNombre = categoria.Nombre;
+                respuestaArtista.CategoriaId = artista.CategoriaId ?? 0;
+                respuestaArtista.UsuarioEmail = usuario.Email;
+                respuestaArtista.UsuarioId = usuario.Id;
+
+                return Ok(respuestaArtista);
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
             }

@@ -16,13 +16,14 @@ namespace Artistas.Models
         public Usuario Usuario { get; set; }
 
         public Artista() { }
-        public Artista(string nombre, string genero, DateOnly fechaNacimiento, string nacionalidad, int categoriaId)
+        public Artista(string nombre, string genero, DateOnly fechaNacimiento, string nacionalidad, int categoriaId, int usuarioId)
         {
             Nombre = nombre;
             Genero = genero;
             FechaNacimiento = fechaNacimiento;
             Nacionalidad = nacionalidad;
             CategoriaId = categoriaId;
+            UsuarioId = usuarioId;
         }
     }
 }
