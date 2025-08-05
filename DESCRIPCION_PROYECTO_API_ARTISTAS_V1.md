@@ -1,4 +1,4 @@
-# 🎨 Artistas API v1 - Descripción del Proyecto
+# Artistas API v1 - Descripción del Proyecto de referencia del curso de Programacion 3
 
 https://github.com/matismasters/Artistasv1
 
